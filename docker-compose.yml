@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: chat-db
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - chat_db_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: chat-backend
+    restart: always
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - traefik-public
+      - internal
+    labels:
+      - "traefik.enable=true"
+      # サブドメインを api-chat-room に設定
+      - "traefik.http.routers.chat-api.rule=Host(`api-chat-room.go-pro-world.net`)"
+      - "traefik.http.routers.chat-api.entrypoints=websecure"
+      - "traefik.http.routers.chat-api.tls=true"
+      - "traefik.http.routers.chat-api.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.chat-api.loadbalancer.server.port=8000"
+      - "traefik.docker.network=traefik-public"
+
+networks:
+  internal:
+    driver: bridge
+  traefik-public:
+    external: true
+
+volumes:
+  chat_db_data:
