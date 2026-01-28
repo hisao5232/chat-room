@@ -65,39 +65,45 @@ export default function Home() {
         </div>
       </header>
   
+      {/* メッセージ表示エリア */}
       <main className="flex-1 overflow-y-auto p-4 space-y-6 bg-[#e5ddd5]">
         {messages.map((msg) => {
           const isMe = msg.username === username;
           
           return (
-            <div key={msg.id} className={`flex items-end gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-              {/* メッセージ本体 */}
-              <div className={`group relative max-w-[75%] px-4 py-2 rounded-2xl shadow-sm ${
-                isMe 
-                  ? 'bg-blue-600 text-white rounded-br-none' 
-                  : 'bg-white border text-gray-700 rounded-bl-none'
-              }`}>
-                {!isMe && <p className="text-[10px] font-bold text-blue-600 mb-1">{msg.username}</p>}
-                <p className="text-sm leading-relaxed break-words">{msg.content}</p>
-                
-                <span className={`text-[10px] block mt-1 text-right opacity-70 ${isMe ? 'text-blue-100' : 'text-gray-400'}`}>
-                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+              {/* 相手のメッセージの時だけ、吹き出しの上に名前を表示 */}
+              {!isMe && (
+                <span className="text-xs font-bold text-gray-600 ml-2 mb-1">
+                  {msg.username}
                 </span>
+              )}
 
-                {/* ホバー時に表示される削除ボタン */}
-                {isMe && (
-                  <button
-                    onClick={() => deleteMessage(msg.id)}
-                    className="absolute -left-10 top-1/2 -translate-y-1/2 p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      <line x1="10" y1="11" x2="10" y2="17"></line>
-                      <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                  </button>
-                )}
+              <div className={`flex items-end gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                {/* メッセージ本体 */}
+                <div className={`group relative max-w-[85%] px-4 py-2 rounded-2xl shadow-sm ${
+                  isMe 
+                    ? 'bg-blue-600 text-white rounded-tr-none' 
+                    : 'bg-white border text-gray-700 rounded-tl-none'
+                }`}>
+                  <p className="text-sm leading-relaxed break-words">{msg.content}</p>
+                  
+                  <span className={`text-[10px] block mt-1 text-right opacity-70 ${isMe ? 'text-blue-100' : 'text-gray-400'}`}>
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+
+                  {/* 削除ボタン (自分のみ) */}
+                  {isMe && (
+                    <button
+                      onClick={() => deleteMessage(msg.id)}
+                      className="absolute -left-10 top-1/2 -translate-y-1/2 p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:scale-110"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
